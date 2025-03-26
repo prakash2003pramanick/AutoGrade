@@ -1,5 +1,5 @@
 const axios = require(axios);
-const createAssignment = async (auth, options) => {
+const createNewAssignment = async (auth, options) => {
     try {
         const {
             id,
@@ -12,12 +12,14 @@ const createAssignment = async (auth, options) => {
             associatedWithDeveloper,
             workType,
         } = options;
+        
         // Step 5: Create Assignment
         const assignmentDetails = {
             // "courseId": string,
             id,
             title,
             description,
+            materials,
             // "materials": [
             //   {
             //     object (Material)
@@ -125,4 +127,4 @@ const createAssignment = async (auth, options) => {
         throw error;
     }
 };
-module.exports = createAssignment;
+module.exports = createNewAssignment;

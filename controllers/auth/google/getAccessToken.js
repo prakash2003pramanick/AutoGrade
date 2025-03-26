@@ -25,7 +25,6 @@ const getAccessToken = async (req, res) => {
             },
         });
         newUser.save();
-        req.user = newUser;
 
     } catch (error) {
         console.error("Error refreshing access token", error.response?.data || error.message);

@@ -2,11 +2,20 @@ const express = require('express');
 const axios = require('axios');
 const axiosRetry = require('axios-retry').default;
 const connectDB = require('./config/db');
+const formRoutes = require('./routes/form')
+const cors = require('cors');
+
 require('dotenv').config();
 
 const app = express();
-const port = 3000;
+
+app.use(express.json()); 
+app.use(cors());
+
+const PORT = process.env.PORT || 3000;
 connectDB();
+
+
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
@@ -14,23 +23,23 @@ const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
 const TOKEN_URL = process.env.GOOGLE_TOKEN_URL;
 const AUTH_URL = process.env.GOOGLE_AUTH_URL;
 
-const SCOPES = encodeURIComponent([
-  'openid profile email',
-  'https://www.googleapis.com/auth/classroom.courses',
-  'https://www.googleapis.com/auth/classroom.coursework.me',
-  'https://www.googleapis.com/auth/classroom.coursework.students',
-  'https://www.googleapis.com/auth/classroom.courseworkmaterials',
-  'https://www.googleapis.com/auth/classroom.announcements',
-  'https://www.googleapis.com/auth/classroom.rosters',
-  'https://www.googleapis.com/auth/classroom.student-submissions.me.readonly',
-  'https://www.googleapis.com/auth/classroom.student-submissions.students.readonly',
-  'https://www.googleapis.com/auth/classroom.topics',
-  'https://www.googleapis.com/auth/classroom.topics.readonly',
-  'https://www.googleapis.com/auth/classroom.profile.emails',
-  'https://www.googleapis.com/auth/forms.body',
-  "https://www.googleapis.com/auth/drive",
-  "https://www.googleapis.com/auth/drive.file",
-].join(' '));
+// const SCOPES = encodeURIComponent([
+//   'openid profile email',
+//   'https://www.googleapis.com/auth/classroom.courses',
+//   'https://www.googleapis.com/auth/classroom.coursework.me',
+//   'https://www.googleapis.com/auth/classroom.coursework.students',
+//   'https://www.googleapis.com/auth/classroom.courseworkmaterials',
+//   'https://www.googleapis.com/auth/classroom.announcements',
+//   'https://www.googleapis.com/auth/classroom.rosters',
+//   'https://www.googleapis.com/auth/classroom.student-submissions.me.readonly',
+//   'https://www.googleapis.com/auth/classroom.student-submissions.students.readonly',
+//   'https://www.googleapis.com/auth/classroom.topics',
+//   'https://www.googleapis.com/auth/classroom.topics.readonly',
+//   'https://www.googleapis.com/auth/classroom.profile.emails',
+//   'https://www.googleapis.com/auth/forms.body',
+//   "https://www.googleapis.com/auth/drive",
+//   "https://www.googleapis.com/auth/drive.file",
+// ].join(' '));
 
 // Configure axios-retry
 axiosRetry(axios, {
@@ -45,11 +54,61 @@ axiosRetry(axios, {
   },
 });
 
+
+
+const SCOPES = [
+    'openid',
+    'profile',
+    'email',
+    'https://www.googleapis.com/auth/classroom.courses.readonly', // Read courses
+    'https://www.googleapis.com/auth/classroom.coursework.students', // Create and manage coursework
+    'https://www.googleapis.com/auth/classroom.rosters.readonly', 
+   ' https://www.googleapis.com/auth/forms.body', 
+     'https://www.googleapis.com/auth/drive.file', 
+     'https://www.googleapis.com/auth/classroom.courses',
+     'https://www.googleapis.com/auth/classroom.coursework.me',
+     'https://www.googleapis.com/auth/classroom.coursework.students',
+     'https://www.googleapis.com/auth/classroom.announcements',
+     'https://www.googleapis.com/auth/classroom.rosters',
+     'https://www.googleapis.com/auth/classroom.student-submissions.me.readonly',
+     'https://www.googleapis.com/auth/classroom.student-submissions.students.readonly',
+     'https://www.googleapis.com/auth/classroom.topics',
+     'https://www.googleapis.com/auth/classroom.topics.readonly',
+     'https://www.googleapis.com/auth/classroom.profile.emails',
+     "https://www.googleapis.com/auth/drive"
+  ].join(' ');
+
+
+//   const SCOPES = encodeURIComponent([
+//     'openid profile email',
+//     'https://www.googleapis.com/auth/classroom.courses',
+//     'https://www.googleapis.com/auth/classroom.coursework.me',
+//     'https://www.googleapis.com/auth/classroom.coursework.students',
+//     'https://www.googleapis.com/auth/classroom.courseworkmaterials',
+//     'https://www.googleapis.com/auth/classroom.announcements',
+//     'https://www.googleapis.com/auth/classroom.rosters',
+//     'https://www.googleapis.com/auth/classroom.student-submissions.me.readonly',
+//     'https://www.googleapis.com/auth/classroom.student-submissions.students.readonly',
+//     'https://www.googleapis.com/auth/classroom.topics',
+//     'https://www.googleapis.com/auth/classroom.topics.readonly',
+//     'https://www.googleapis.com/auth/classroom.profile.emails',
+//     'https://www.googleapis.com/auth/forms.body',
+//     "https://www.googleapis.com/auth/drive",
+//     "https://www.googleapis.com/auth/drive.file",
+//   ].join(' '));
+
+
 app.get('/auth/google', (req, res) => {
-  const authUrl = `${AUTH_URL}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPES}&access_type=offline&prompt=consent`;
-  console.log('Redirecting to:', authUrl);
-  return res.redirect(authUrl);
-});
+    const authUrl = new URL(AUTH_URL);
+    authUrl.searchParams.set('client_id', CLIENT_ID);
+    authUrl.searchParams.set('redirect_uri', REDIRECT_URI);
+    authUrl.searchParams.set('response_type', 'code');
+    authUrl.searchParams.set('scope', SCOPES);
+    authUrl.searchParams.set('access_type', 'offline');
+    authUrl.searchParams.set('prompt', 'consent');
+  
+    res.redirect(authUrl.toString());
+  });
 
 app.get('/auth/google/callback', async (req, res) => {
   const code = req.query.code;
@@ -96,78 +155,77 @@ app.get('/auth/google/callback', async (req, res) => {
     //   return res.status(404).json({ error: 'No classes created by you.' });
     // }
 
-    // // Step 5: Create Assignment
-    const assignmentDetails = {
-      // "courseId": string,
-      "id": "762199467218",
-      "title": "Assignment 2",
-      "description": "This is testing for the new assignment",
-      "materials": [
-        {
-          "link": {
-            "url": "https://docs.google.com/forms/d/e/1FAIpQLSfvdOwzj1uVkguQ3BlWYHg2bC6HFh0GRm7A9wKk_21l9YBM0A/viewform",
-            "title": "new form for test",
-            // "thumbnailUrl": string
-          }
-        }
-      ],
-      "state": "PUBLISHED",
-      // "alternateLink": string,
-      // "creationTime": string,
-      // "updateTime": string,
-      "dueDate": {
-        "year": 2025,
-        "month": 3,
-        "day": 28
-      },
-      "dueTime": {
-        "hours": 0,
-        "minutes": 0,
-        "seconds": 0,
-        "nanos": 0
-      },
-      // "scheduledTime": string,
-      "maxPoints": 150,
-      "workType": "ASSIGNMENT",
-      "associatedWithDeveloper": false,
-      // "assigneeMode": enum (AssigneeMode),
-      // "individualStudentsOptions": {
-      //   object (IndividualStudentsOptions)
-      // },
-      // "submissionModificationMode": enum (SubmissionModificationMode),
-      // "creatorUserId": string,
-      // "topicId": string,
-      // "gradeCategory": {
-      //   object (GradeCategory)
-      // },
-      // "previewVersion": enum (PreviewVersion),
+    // // // Step 5: Create Assignment
+    // const assignmentDetails = {
+    //   // "courseId": string,
+    //   "id": "762199467218",
+    //   "title": "Assignment 2",
+    //   "description": "This is testing for the new assignment",
+    //   "materials": [
+    //     {
+    //       "link": {
+    //         "url": "https://docs.google.com/forms/d/e/1FAIpQLSfvdOwzj1uVkguQ3BlWYHg2bC6HFh0GRm7A9wKk_21l9YBM0A/viewform",
+    //         "title": "new form for test",
+    //         // "thumbnailUrl": string
+    //       }
+    //     }
+    //   ],
+    //   "state": "PUBLISHED",
+    //   // "alternateLink": string,
+    //   // "creationTime": string,
+    //   // "updateTime": string,
+    //   "dueDate": {
+    //     "year": 2025,
+    //     "month": 3,
+    //     "day": 28
+    //   },
+    //   "dueTime": {
+    //     "hours": 0,
+    //     "minutes": 0,
+    //     "seconds": 0,
+    //     "nanos": 0
+    //   },
+    //   // "scheduledTime": string,
+    //   "maxPoints": 150,
+    //   "workType": "ASSIGNMENT",
+    //   "associatedWithDeveloper": false,
+    //   // "assigneeMode": enum (AssigneeMode),
+    //   // "individualStudentsOptions": {
+    //   //   object (IndividualStudentsOptions)
+    //   // },
+    //   // "submissionModificationMode": enum (SubmissionModificationMode),
+    //   // "creatorUserId": string,
+    //   // "topicId": string,
+    //   // "gradeCategory": {
+    //   //   object (GradeCategory)
+    //   // },
+    //   // "previewVersion": enum (PreviewVersion),
 
-      // Union field details can be only one of the following:
-      // "assignment": {
-      //   object (Assignment)
-      // },
-      // "multipleChoiceQuestion": {
-      //   object (MultipleChoiceQuestion)
-      // }
-      // // End of list of possible types for union field details.
-      // "gradingPeriodId": string
-    };
+    //   // Union field details can be only one of the following:
+    //   // "assignment": {
+    //   //   object (Assignment)
+    //   // },
+    //   // "multipleChoiceQuestion": {
+    //   //   object (MultipleChoiceQuestion)
+    //   // }
+    //   // // End of list of possible types for union field details.
+    //   // "gradingPeriodId": string
+    // };
 
-    const assignmentUrl = `https://classroom.googleapis.com/v1/courses/762199467218/courseWork`;
-    console.log("Assignment URL", assignmentUrl);
+    // const assignmentUrl = `https://classroom.googleapis.com/v1/courses/762199467218/courseWork`;
 
-    const assignmentResponse = await axios.post(
-      assignmentUrl,
-      assignmentDetails,
-      {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    // const assignmentResponse = await axios.post(
+    //   assignmentUrl,
+    //   assignmentDetails,
+    //   {
+    //     headers: {
+    //       Authorization: `Bearer ${access_token}`,
+    //       'Content-Type': 'application/json',
+    //     },
+    //   }
+    // );
 
-    console.log("Assignment Created", assignmentResponse.data);
+    // console.log("Assignment Created", assignmentResponse.data);
 
     // // Step 6 : Get assignment submissions
     // const getCourseWorkURL = `https://classroom.googleapis.com/v1/courses/762199467218/courseWork/762419292233/studentSubmissions`
@@ -340,6 +398,6 @@ app.get('/auth/google/callback', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
 });
