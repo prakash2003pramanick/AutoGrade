@@ -8,11 +8,11 @@ const app = express();
 const port = 3000;
 connectDB();
 
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const REDIRECT_URI = process.env.REDIRECT_URI;
-const TOKEN_URL = process.env.TOKEN_URL;
-const AUTH_URL = process.env.AUTH_URL;
+const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
+const TOKEN_URL = process.env.GOOGLE_TOKEN_URL;
+const AUTH_URL = process.env.GOOGLE_AUTH_URL;
 
 const SCOPES = encodeURIComponent([
   'openid profile email',
