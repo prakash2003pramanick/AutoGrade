@@ -29,7 +29,7 @@ const getAccessToken = async (req, res) => {
       },
     });
 
-    const { access_token } = tokenResponse.data;
+    const { access_token,refresh_token } = tokenResponse.data;
 
     const userInfoResponse = await axios.get(
       "https://www.googleapis.com/oauth2/v2/userinfo",
@@ -38,7 +38,7 @@ const getAccessToken = async (req, res) => {
       }
     );
 
-    const { id, email, name, picture } = userInfoResponse.data;
+    const { id, email, name, picture, } = userInfoResponse.data;
 
     let user = await User.findOne({ "google.id": id });
 
@@ -47,6 +47,7 @@ const getAccessToken = async (req, res) => {
         google: {
           id,
           access_token,
+          refresh_token
         },
         email,
         name,
@@ -57,7 +58,6 @@ const getAccessToken = async (req, res) => {
 
     const jwtToken = jwt.sign({ user: user }, JWT_SECRET);
 
-    console.log({ message: "Login successful", token: jwtToken, user });
     return res.json({ message: "Login successful", token: jwtToken, user });
   } catch (error) {
     console.error(
