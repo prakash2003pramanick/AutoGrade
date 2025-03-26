@@ -1,5 +1,5 @@
 const axios = require("axios");
-const User = require("./../../../models/user");
+const User = require("../../../models/user");
 const jwt = require("jsonwebtoken");
 
 const getAccessToken = async (req, res) => {
@@ -9,7 +9,7 @@ const getAccessToken = async (req, res) => {
     GOOGLE_REDIRECT_URI,
     GOOGLE_AUTH_URL,
     JWT_SECRET,
-    TOKEN_URL,
+    GOOGLE_TOKEN_URL,
   } = process.env;
 
   try {
@@ -19,7 +19,7 @@ const getAccessToken = async (req, res) => {
     }
 
     // Exchange authorization code for access token
-    const tokenResponse = await axios.post(TOKEN_URL, null, {
+    const tokenResponse = await axios.post(GOOGLE_TOKEN_URL, null, {
       params: {
         code,
         client_id: GOOGLE_CLIENT_ID,
@@ -29,7 +29,6 @@ const getAccessToken = async (req, res) => {
       },
     });
 
-    console.log("Token Response", tokenResponse.data);
     const { access_token } = tokenResponse.data;
 
     const userInfoResponse = await axios.get(
@@ -47,11 +46,11 @@ const getAccessToken = async (req, res) => {
       user = new User({
         google: {
           id,
-          email,
-          name,
-          picture,
           access_token,
         },
+        email,
+        name,
+        picture,
       });
       await user.save();
     }
