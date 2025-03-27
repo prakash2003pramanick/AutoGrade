@@ -1,11 +1,13 @@
 //fetchCourses
 // to keep in form while creating an assignment 
 const axios = require('axios');
-const COURSES_URL = 'https://classroom.googleapis.com/v1/courses';
 const fetchCourses = async (req, res) => {
+    console.log("Fetch Courses funtion");
+
     const { access_token } = req.user.google;
+    console.log("Access Token ", access_token);
     try {
-        const coursesResponse = await axios.get(COURSES_URL, {
+        const coursesResponse = await axios.get("https://classroom.googleapis.com/v1/courses", {
             headers: {
                 Authorization: `Bearer ${access_token}`,
             },

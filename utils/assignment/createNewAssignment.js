@@ -10,7 +10,7 @@ const createNewAssignment = async (auth, options) => {
             dueTime,
             maxPoints,
             associatedWithDeveloper,
-            workType,
+            assingmentType: workType,
             materials
         } = options;
 
@@ -124,7 +124,7 @@ const createNewAssignment = async (auth, options) => {
         );
         return assignmentResponse.data;
     } catch (error) {
-        console.error('Error creating course:', error);
+        console.error('Error creating course:', error.data || error.message);
         throw error;
     }
 };

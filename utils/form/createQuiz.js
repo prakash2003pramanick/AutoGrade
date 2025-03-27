@@ -2,20 +2,22 @@ const googleFormService = require('../../services/googleFormService');
 const questionGenerator = require('./questionGenerator')
 const { google } = require('googleapis');
 
-exports.generateQuiz = async (auth, options) => {
+const generateQuiz = async (auth, options) => {
   try {
-    const { prompt } = options;
+    console.log('options',options)
+    const { assignmentPrompt: prompt } = options;
 
     if (!prompt) {
-      return res.status(400).json({ error: "Prompt is required" });
+      return;;
     }
 
 
     const formTitle = `Quiz:`;
     const description = `This quiz is based on: "${prompt}"`;
 
+    console.log("creating form");
     const formCreationResponse = await googleFormService.createForm(formTitle, description, auth.access_token);
-    console.log(formCreationResponse.formId, "form created");
+    console.log("form created",formCreationResponse);
 
 
 
@@ -54,3 +56,5 @@ exports.generateQuiz = async (auth, options) => {
     return error;
   }
 };
+
+module.exports = generateQuiz;
