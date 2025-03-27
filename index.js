@@ -4,6 +4,7 @@ const axiosRetry = require('axios-retry').default;
 const connectDB = require('./config/db');
 const formRoutes = require('./routes/form')
 const cors = require('cors');
+const {createAssignments} = require('./controllers/createAssignment');
 
 require('dotenv').config();
 
@@ -397,6 +398,8 @@ app.get('/auth/google/callback', async (req, res) => {
     res.status(500).json({ error: 'Something went wrong.' });
   }
 });
+
+app.post('/api/assignment/createAssignment', createAssignments);
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

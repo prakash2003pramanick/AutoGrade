@@ -1,4 +1,4 @@
-const axios = require(axios);
+const axios = require('axios');
 const createNewAssignment = async (auth, options) => {
     try {
         const {
@@ -11,8 +11,9 @@ const createNewAssignment = async (auth, options) => {
             maxPoints,
             associatedWithDeveloper,
             workType,
+            materials
         } = options;
-        
+
         // Step 5: Create Assignment
         const assignmentDetails = {
             // "courseId": string,

@@ -1,4 +1,4 @@
-const googleFormService = require('../services/googleFormService');
+const googleFormService = require('../../services/googleFormService');
 const questionGenerator = require('./questionGenerator')
 const { google } = require('googleapis');
 
