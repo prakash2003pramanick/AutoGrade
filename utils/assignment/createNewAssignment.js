@@ -1,18 +1,31 @@
 const axios = require('axios');
 const createNewAssignment = async (auth, options) => {
     try {
-        const {
+
+        console.log("Creating new assignment with options: ", options);
+        console.log("auth: ", auth);
+        let {
             id,
-            title,
-            description,
+            assignmentName: title,
+            assignmentDescription: description,
             state,
             dueDate,
             dueTime,
-            maxPoints,
+            maxMarks : maxPoints,
             associatedWithDeveloper,
             assingmentType: workType,
             materials
         } = options;
+
+        workType = "ASSIGNMENT";
+        state = state || "PUBLISHED";
+        maxPoints = maxPoints || 100;
+        associatedWithDeveloper = associatedWithDeveloper || false;
+        workType = workType || "SHORT_ANSWER_QUESTION";
+        materials = materials || [];
+
+        console.log("creating new assignment for course : ", id);
+        
 
         // Step 5: Create Assignment
         const assignmentDetails = {

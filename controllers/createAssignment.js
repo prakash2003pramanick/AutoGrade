@@ -53,7 +53,7 @@ const createAssignments = async (req, res) => {
                 req.body.material.push(
                     {
                         "link": {
-                            "url": generatedFrom.formUrl,
+                            "url": generatedFrom.responderUri,
                             "title": "new form for test",
                             // "thumbnailUrl": string
                         }
@@ -69,20 +69,22 @@ const createAssignments = async (req, res) => {
         else {
             // Add other materials - if any
             console.log("No quiz requested");
-            
+
         }
 
 
         // Add other materials - if any
         console.log("Creating Assignment");
-        
+
         // create the assignment
         const generatedAssignment = await createNewAssignment(req.user.google, req.body);
+        console.log("generatedAssignment", generatedAssignment);
 
         if (generatedAssignment) {
-            res.status(201).json({ assigment: generatedAssignment })
+            return res.status(201).json({ assigment: generatedAssignment })
+        } else {
+            return res.status(500).json({ error: "Failed to create assignment" });
         }
-        res.status(200).json({ message: "Assignment created successfully" });
 
     } catch (error) {
         console.error('Error fetching courses:', error.data || error.message);
