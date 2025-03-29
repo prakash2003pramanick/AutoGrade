@@ -59,7 +59,15 @@ const getAccessToken = async (req, res) => {
 
     const jwtToken = jwt.sign({ id: newUser._id }, JWT_SECRET);
 
-    return res.json({ message: "Login successful", token: jwtToken });
+    const redirectUrl = new URL('http://localhost:5173');
+      redirectUrl.searchParams.set('token', jwtToken);
+      redirectUrl.searchParams.set('user', user);
+    
+      // console.log();
+      // redirectUrl.searchParams.set('refresh_token', refresh_token);
+      // redirectUrl.searchParams.set('email', userInfoResponse.data.email);
+      
+      res.redirect(redirectUrl.toString());
   } catch (error) {
     console.error(
       "Error in Google authentication",
