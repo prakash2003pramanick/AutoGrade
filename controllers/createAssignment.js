@@ -69,6 +69,7 @@ const createAssignments = async (req, res) => {
         else {
             // Add other materials - if any
             console.log("No quiz requested");
+            req.body.workType = "SHORT_ANSWER_TYPE"
 
         }
 

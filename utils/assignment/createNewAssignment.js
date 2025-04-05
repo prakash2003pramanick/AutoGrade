@@ -1,20 +1,17 @@
 const axios = require('axios');
 const createNewAssignment = async (auth, options) => {
     try {
-
-        console.log("Creating new assignment with options: ", options);
-        console.log("auth: ", auth);
         let {
             id,
             assignmentName: title,
             assignmentDescription: description,
+            materials,
             state,
             dueDate,
             dueTime,
             maxMarks : maxPoints,
             associatedWithDeveloper,
-            assingmentType: workType,
-            materials
+            workType,
         } = options;
 
         workType = "ASSIGNMENT";
@@ -28,12 +25,12 @@ const createNewAssignment = async (auth, options) => {
         
 
         // Step 5: Create Assignment
+    
         const assignmentDetails = {
             // "courseId": string,
             id,
             title,
             description,
-            materials,
             // "materials": [
             //   {
             //     object (Material)
@@ -43,12 +40,21 @@ const createNewAssignment = async (auth, options) => {
             // "alternateLink": string,
             // "creationTime": string,
             // "updateTime": string,
-            dueDate,
-            dueTime,
+            "dueDate": {
+                "year": 2025,
+                "month": 4,
+                "day": 8
+            },
+            "dueTime": {
+                "hours": 0,
+                "minutes": 0,
+                "seconds": 0,
+                "nanos": 0
+            },
             // "scheduledTime": string,
-            maxPoints,
-            associatedWithDeveloper,
-            workType,
+            "maxPoints": maxPoints,
+            "workType": "ASSIGNMENT",
+            "associatedWithDeveloper": true,
             // "assigneeMode": enum (AssigneeMode),
             // "individualStudentsOptions": {
             //   object (IndividualStudentsOptions)
@@ -71,57 +77,6 @@ const createNewAssignment = async (auth, options) => {
             // // End of list of possible types for union field details.
             // "gradingPeriodId": string
         };
-        // const assignmentDetails = {
-        //     // "courseId": string,
-        //     "id": myClasses[0].id,
-        //     "title": "New Assignment Test",
-        //     "description": "This is testing for the new assignment",
-        //     // "materials": [
-        //     //   {
-        //     //     object (Material)
-        //     //   }
-        //     // ],
-        //     "state": "PUBLISHED",
-        //     // "alternateLink": string,
-        //     // "creationTime": string,
-        //     // "updateTime": string,
-        //     "dueDate": {
-        //         "year": 2025,
-        //         "month": 3,
-        //         "day": 26
-        //     },
-        //     "dueTime": {
-        //         "hours": 0,
-        //         "minutes": 0,
-        //         "seconds": 0,
-        //         "nanos": 0
-        //     },
-        //     // "scheduledTime": string,
-        //     "maxPoints": 150,
-        //     "workType": "SHORT_ANSWER_QUESTION",
-        //     "associatedWithDeveloper": false,
-        //     // "assigneeMode": enum (AssigneeMode),
-        //     // "individualStudentsOptions": {
-        //     //   object (IndividualStudentsOptions)
-        //     // },
-        //     // "submissionModificationMode": enum (SubmissionModificationMode),
-        //     // "creatorUserId": string,
-        //     // "topicId": string,
-        //     // "gradeCategory": {
-        //     //   object (GradeCategory)
-        //     // },
-        //     // "previewVersion": enum (PreviewVersion),
-
-        //     // Union field details can be only one of the following:
-        //     // "assignment": {
-        //     //   object (Assignment)
-        //     // },
-        //     // "multipleChoiceQuestion": {
-        //     //   object (MultipleChoiceQuestion)
-        //     // }
-        //     // // End of list of possible types for union field details.
-        //     // "gradingPeriodId": string
-        // };
 
         const assignmentUrl = `https://classroom.googleapis.com/v1/courses/${id}/courseWork`;
 

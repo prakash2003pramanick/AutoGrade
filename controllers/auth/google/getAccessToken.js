@@ -38,7 +38,7 @@ const getAccessToken = async (req, res) => {
       }
     );
 
-    const { id, email, name, picture, } = userInfoResponse.data;
+    const { id, email, name, picture } = userInfoResponse.data;
 
     let user = await User.findOne({ email: email });
 
@@ -50,24 +50,18 @@ const getAccessToken = async (req, res) => {
         name,
         picture,
       });
-
-    }
-    else {
+    } else {
       user.google = tokenResponse.data;
     }
     const newUser = await user.save();
 
     const jwtToken = jwt.sign({ id: newUser._id }, JWT_SECRET);
-
-    const redirectUrl = new URL('http://localhost:5173');
-      redirectUrl.searchParams.set('token', jwtToken);
-      redirectUrl.searchParams.set('user', user);
-    
-      // console.log();
-      // redirectUrl.searchParams.set('refresh_token', refresh_token);
-      // redirectUrl.searchParams.set('email', userInfoResponse.data.email);
-      
-      res.redirect(redirectUrl.toString());
+    const redirectUrl = `${
+      process.env.FRONTEND_URL
+    }/auth?token=${jwtToken}&user=${JSON.stringify(newUser)}`;
+    console.log("Redirect URL", redirectUrl);
+    // Redirect to frontend with JWT token
+    return res.redirect(redirectUrl);
   } catch (error) {
     console.error(
       "Error in Google authentication",

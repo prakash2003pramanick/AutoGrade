@@ -3,7 +3,7 @@
 const axios = require('axios');
 const fetchCourses = async (req, res) => {
     console.log("Fetch Courses funtion");
-
+    
     const { access_token } = req.user.google;
     console.log("Access Token ", access_token);
     try {
