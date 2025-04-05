@@ -58,8 +58,10 @@ const getAccessToken = async (req, res) => {
     const newUser = await user.save();
 
     const jwtToken = jwt.sign({ id: newUser._id }, JWT_SECRET);
-
-    return res.json({ message: "Login successful", token: jwtToken });
+    const redirectUrl = `${process.env.FRONTEND_URL}/auth?token=${jwtToken}`;
+    console.log("Redirect URL", redirectUrl);
+    // Redirect to frontend with JWT token
+    return res.redirect(redirectUrl);
   } catch (error) {
     console.error(
       "Error in Google authentication",
