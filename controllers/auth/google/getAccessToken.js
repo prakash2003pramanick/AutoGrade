@@ -47,7 +47,7 @@ const getAccessToken = async (req, res) => {
     if (!user) {
       console.log("Creating new user");
       user = new User({
-        google: {...tokenResponse.data, id},
+        google: { ...tokenResponse.data, id },
         email,
         name,
         picture,
@@ -55,13 +55,19 @@ const getAccessToken = async (req, res) => {
 
     }
     else {
-      user.google = {...tokenResponse.data, id};
+      user.google = { ...tokenResponse.data, id };
     }
     const newUser = await user.save();
 
     const jwtToken = jwt.sign({ id: newUser._id }, JWT_SECRET);
+    const redirectUrl = process.env.FRONTEND_URL;
 
-    return res.json({ message: "Login successful", token: jwtToken });
+    const userString = encodeURIComponent(JSON.stringify(newUser));
+    // Build URL with token and serialized user object
+    const finalRedirectUrl = `${redirectUrl}?token=${jwtToken}&user=${userString}`;
+
+    // Redirect to frontend with query params
+    return res.redirect(finalRedirectUrl);
   } catch (error) {
     console.error(
       "Error in Google authentication",
@@ -89,7 +95,7 @@ const refreshAccessToken = async (refreshToken) => {
     console.log("Token Response", tokenResponse.data);
     const { access_token, expires_in } = tokenResponse.data;
 
-    
+
 
     return { access_token, expires_in };
   } catch (error) {
