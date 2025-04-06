@@ -10,9 +10,10 @@ const { getAccessToken } = require('./controllers/auth/google/getAccessToken');
 const verifyToken = require('./Middleware/verifyToken');
 const { fetchCourses } = require('./controllers/fetchCourses');
 const { fetchCourseWork } = require('./controllers/fetchCourseWork');
-const { fetchSubmissionsController } = require('./controllers/fetchSubmissionsController');
 const gradeAssignment = require('./utils/assignment/gradeAssignment');
 const { gradeAssignmentController } = require('./controllers/gradeAssignment');
+const { imageUpload, fileUpload } = require('./Middleware/upload');
+const { fetchSubmissionsController } = require('./controllers/fetchSubmissionsController');
 require('dotenv').config();
 
 const app = express();
@@ -411,7 +412,7 @@ app.get('/auth/google/callback', getAccessToken)
 //   }
 // });
 
-app.post('/api/assignment/createAssignment', verifyToken, createAssignments);
+app.post('/api/assignment/createAssignment', fileUpload.single('materialFile'), verifyToken, createAssignments);
 
 app.get('/api/courses/fetchAllCourses', verifyToken, fetchCourses);
 
