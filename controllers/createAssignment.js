@@ -2,6 +2,7 @@
 
 const createNewAssignment = require("../utils/assignment/createNewAssignment");
 const generateQuiz = require("../utils/form/createQuiz");
+const TextAssignmentGenerator = require("../utils/form/TextAssignmentGenerator");
 
 function convertToDateTimeFormat(dueDate, dueTime) {
     // Extract date components
@@ -28,16 +29,14 @@ function convertToDateTimeFormat(dueDate, dueTime) {
 
 const createAssignments = async (req, res) => {
     try {
-        console.log("req.user", req.user);
+        console.log("req.body", req.body);
 
         // change date&time format
         const formattedDateTime = convertToDateTimeFormat(req.body.dueDate, req.body.dueTime);
         req.body.dueDate = formattedDateTime.dueDate;
         req.body.dueTime = formattedDateTime.dueTime;
 
-        req.body.material = [];
-
-        console.log("req.body", req.body);
+        req.body.materials = [];
         let generatedFrom;
 
         console.log("req.body.assignmentType", req.body.assignmentType);
@@ -46,20 +45,20 @@ const createAssignments = async (req, res) => {
             console.log("Generating Quiz");
             //generate the quiz
             generatedFrom = await generateQuiz(req.user.google, req.body);
+
             console.log("generatedFrom", generatedFrom);
 
             //add the form to the material
             if (generatedFrom) {
-                req.body.material.push(
+                req.body.materials.push(
                     {
                         "link": {
                             "url": generatedFrom.responderUri,
-                            "title": "new form for test",
-                            // "thumbnailUrl": string
+                            "title": req.body.assignmentName
                         }
                     }
                 )
-                console.log(req.body.material);
+                console.log(req.body.materials);
             }
             else {
                 return res.status(500).json({ error: "Failed to generate quiz" });
@@ -69,10 +68,13 @@ const createAssignments = async (req, res) => {
         else {
             // Add other materials - if any
             console.log("No quiz requested");
-            req.body.workType = "SHORT_ANSWER_TYPE"
+            // create the assignment
+            const textAssignmentGenerator = await TextAssignmentGenerator.generateAssignment(req.body.description, req.body.assignmentPrompt, req.body.numberOfQuestions);
+            console.log("textAssignmentGenerator", textAssignmentGenerator);
+            req.body.assignmentDescription = textAssignmentGenerator;
 
+            console.log("req.body changed description", req.body);
         }
-
 
         // Add other materials - if any
         console.log("Creating Assignment");
@@ -82,7 +84,7 @@ const createAssignments = async (req, res) => {
         console.log("generatedAssignment", generatedAssignment);
 
         if (generatedAssignment) {
-            return res.status(201).json({ assigment: generatedAssignment })
+            return res.status(201).json({ assigment: generatedAssignment, form : generatedFrom });
         } else {
             return res.status(500).json({ error: "Failed to create assignment" });
         }

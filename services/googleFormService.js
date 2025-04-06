@@ -5,14 +5,14 @@ class GoogleFormService {
     const formDetails = {
       info: {
         title: title,
-        // description: description
+        // description: description 
       }
     };
 
     const createFormUrl = `https://forms.googleapis.com/v1/forms`;
     try {
       const response = await axios.post(
-        createFormUrl, 
+        createFormUrl,
         formDetails,
         {
           headers: {
@@ -24,6 +24,35 @@ class GoogleFormService {
 
       console.log("Form Created", response.data);
 
+      const requests = [(
+        {
+          "updateSettings": {
+            "settings": {
+              "quizSettings": {
+                "isQuiz": true
+              },
+              "emailCollectionType": "VERIFIED"
+            },
+            "updateMask": "quizSettings.isQuiz,emailCollectionType"
+          }
+        }
+      )];
+      const requestBody = {
+        requests
+      };
+
+      //update settings to quiz
+      await axios.post(
+        `https://forms.googleapis.com/v1/forms/${response.data.formId}:batchUpdate`,
+        requestBody,
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
       return {
         formId: response.data.formId,
         responderUri: response.data.responderUri
@@ -34,26 +63,14 @@ class GoogleFormService {
     }
   }
 
-  async addQuestionToForm(formId, question, accessToken) {
+  async addQuestionToForm(formId, requests, accessToken) {
     try {
       const requestBody = {
-        requests: [{
-          createItem: {
-            item: {
-              title: question.title,
-              questionItem: {
-                question: this.mapQuestionType(question)
-              }
-            },
-            location: {
-              index: 0
-            }
-          }
-        }]
+        requests
       };
 
       const response = await axios.post(
-        `https://forms.googleapis.com/v1/forms/${formId}:batchUpdate`, 
+        `https://forms.googleapis.com/v1/forms/${formId}:batchUpdate`,
         requestBody,
         {
           headers: {

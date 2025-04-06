@@ -31,26 +31,13 @@ const createNewAssignment = async (auth, options) => {
             id,
             title,
             description,
-            // "materials": [
-            //   {
-            //     object (Material)
-            //   }
-            // ],
-            state,
+            materials,
+            state : "PUBLISHED",
             // "alternateLink": string,
             // "creationTime": string,
             // "updateTime": string,
-            "dueDate": {
-                "year": 2025,
-                "month": 4,
-                "day": 8
-            },
-            "dueTime": {
-                "hours": 0,
-                "minutes": 0,
-                "seconds": 0,
-                "nanos": 0
-            },
+            dueDate,
+            dueTime,
             // "scheduledTime": string,
             "maxPoints": maxPoints,
             "workType": "ASSIGNMENT",

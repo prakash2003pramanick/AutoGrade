@@ -1,0 +1,32 @@
+{
+    "requests": [
+        {
+            "createItem": {
+                "item": {
+                    "title": string,
+                    "description": string,
+                    "questionItem": {
+                        "question": {
+                            "required": boolean,
+                            "grading": {
+                              object (Grading)
+                            },
+                            "choiceQuestion": {
+                                "type": enum (ChoiceType),
+                                "options": [
+                                    {
+                                    object (Option)
+                                    }
+                                ],
+                                "shuffle": boolean
+                            }
+                        }
+                    }
+                },
+                "location": {
+                  object (Location)
+                }
+            }
+        }
+    ]
+}

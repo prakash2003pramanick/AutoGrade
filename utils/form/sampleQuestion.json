@@ -1,0 +1,268 @@
+{
+    "quiz": {
+        "requests": [
+            {
+                "createItem": {
+                    "item": {
+                        "title": "What HTML tag is used to define a paragraph?",
+                        "description": "HTML Quiz",
+                        "questionItem": {
+                            "question": {
+                                "required": true,
+                                "choiceQuestion": {
+                                    "options": [
+                                        {
+                                            "isOther": false,
+                                            "value": "<p>"
+                                        },
+                                        {
+                                            "isOther": false,
+                                            "value": "<h1>"
+                                        },
+                                        {
+                                            "isOther": false,
+                                            "value": "<br>"
+                                        },
+                                        {
+                                            "isOther": false,
+                                            "value": "<div>"
+                                        }
+                                    ],
+                                    "shuffle": true,
+                                    "type": "RADIO"
+                                },
+                                "grading": {
+                                    "correctAnswers": {
+                                        "answers": [
+                                            {
+                                                "value": "<p>"
+                                            }
+                                        ]
+                                    },
+                                    "pointValue": 1,
+                                    "whenRight": {
+                                        "text": "Correct!"
+                                    },
+                                    "whenWrong": {
+                                        "text": "Incorrect. The <p> tag defines a paragraph."
+                                    }
+                                },
+                            }
+                        }
+                    },
+                    "location": {
+                        "index": 0
+                    }
+                }
+            },
+            {
+                "createItem": {
+                    "item": {
+                        "description": "HTML Quiz",
+                        "questionItem": {
+                            "question": {
+                                "choiceQuestion": {
+                                    "options": [
+                                        {
+                                            "isOther": false,
+                                            "value": "True"
+                                        },
+                                        {
+                                            "isOther": false,
+                                            "value": "False"
+                                        }
+                                    ],
+                                    "shuffle": true,
+                                    "type": "RADIO"
+                                },
+                                "grading": {
+                                    "correctAnswers": {
+                                        "answers": [
+                                            {
+                                                "value": "False"
+                                            }
+                                        ]
+                                    },
+                                    "pointValue": 1,
+                                    "whenRight": {
+                                        "text": "Correct!"
+                                    },
+                                    "whenWrong": {
+                                        "text": "Incorrect. HTML is a markup language, not a programming language."
+                                    }
+                                },
+                                "required": true
+                            }
+                        },
+                        "title": "True or False: HTML is a programming language."
+                    },
+                    "location": {
+                        "index": 1
+                    }
+                }
+            },
+            {
+                "createItem": {
+                    "item": {
+                        "description": "HTML Quiz",
+                        "questionItem": {
+                            "question": {
+                                "choiceQuestion": {
+                                    "options": [
+                                        {
+                                            "isOther": false,
+                                            "value": "HyperText Markup Language"
+                                        },
+                                        {
+                                            "isOther": false,
+                                            "value": "High Tech Machine Language"
+                                        },
+                                        {
+                                            "isOther": false,
+                                            "value": "Hyper Transfer Markup Language"
+                                        },
+                                        {
+                                            "isOther": false,
+                                            "value": "Home Tool Markup Language"
+                                        }
+                                    ],
+                                    "shuffle": true,
+                                    "type": "RADIO"
+                                },
+                                "grading": {
+                                    "correctAnswers": {
+                                        "answers": [
+                                            {
+                                                "value": "HyperText Markup Language"
+                                            }
+                                        ]
+                                    },
+                                    "pointValue": 1,
+                                    "whenRight": {
+                                        "text": "Correct!"
+                                    },
+                                    "whenWrong": {
+                                        "text": "Incorrect.  HTML stands for HyperText Markup Language."
+                                    }
+                                },
+                                "required": true
+                            }
+                        },
+                        "title": "What does HTML stand for?"
+                    },
+                    "location": {
+                        "index": 2
+                    }
+                }
+            },
+            {
+                "createItem": {
+                    "item": {
+                        "description": "HTML Quiz",
+                        "questionItem": {
+                            "question": {
+                                "choiceQuestion": {
+                                    "options": [
+                                        {
+                                            "isOther": false,
+                                            "value": "<h1>"
+                                        },
+                                        {
+                                            "isOther": false,
+                                            "value": "<head>"
+                                        },
+                                        {
+                                            "isOther": false,
+                                            "value": "<header>"
+                                        },
+                                        {
+                                            "isOther": false,
+                                            "value": "<hr>"
+                                        }
+                                    ],
+                                    "shuffle": true,
+                                    "type": "RADIO"
+                                },
+                                "grading": {
+                                    "correctAnswers": {
+                                        "answers": [
+                                            {
+                                                "value": "<h1>"
+                                            }
+                                        ]
+                                    },
+                                    "pointValue": 1,
+                                    "whenRight": {
+                                        "text": "Correct!"
+                                    },
+                                    "whenWrong": {
+                                        "text": "Incorrect. <h1> represents a level 1 heading."
+                                    }
+                                },
+                                "required": true
+                            }
+                        },
+                        "title": "Which tag represents the largest heading in HTML?"
+                    },
+                    "location": {
+                        "index": 3
+                    }
+                }
+            },
+            {
+                "createItem": {
+                    "item": {
+                        "description": "HTML Quiz",
+                        "questionItem": {
+                            "question": {
+                                "choiceQuestion": {
+                                    "options": [
+                                        {
+                                            "isOther": false,
+                                            "value": "<body>"
+                                        },
+                                        {
+                                            "isOther": false,
+                                            "value": "<head>"
+                                        },
+                                        {
+                                            "isOther": false,
+                                            "value": "<html>"
+                                        },
+                                        {
+                                            "isOther": false,
+                                            "value": "<title>"
+                                        }
+                                    ],
+                                    "shuffle": true,
+                                    "type": "RADIO"
+                                },
+                                "grading": {
+                                    "correctAnswers": {
+                                        "answers": [
+                                            {
+                                                "value": "<body>"
+                                            }
+                                        ]
+                                    },
+                                    "pointValue": 1,
+                                    "whenRight": {
+                                        "text": "Correct!"
+                                    },
+                                    "whenWrong": {
+                                        "text": "Incorrect. The content of an HTML document goes inside the <body> tag."
+                                    }
+                                },
+                                "required": true
+                            }
+                        },
+                        "title": "Where does the visible content of your webpage go?"
+                    },
+                    "location": {
+                        "index": 4
+                    }
+                }
+            }
+        ]
+    }
+}

@@ -6,57 +6,116 @@ class QuestionGenerator {
     this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "AIzaSyBClM_kYYLR-XtMtDb_YXnXLKM5ENK4EQA");
   }
 
-  async generateQuestions(description, prompt = "") {
+  async generateQuestions(description, prompt = "", numberOfQuestions =  10) {
     try {
       // Define a comprehensive schema for questions
       const schema = {
-        description: "Quiz Question Generation",
+        description: "Quiz Question Creation Schema",
         type: "object",
         properties: {
-          questions: {
+          requests: {
             type: "array",
             items: {
               type: "object",
               properties: {
-                title: { 
-                  type: "string",
-                  description: "The main text of the question"
-                },
-                type: { 
-                  type: "string", 
-                  enum: [
-                    "multiple_choice", 
-                    "true_false", 
-                    "short_answer", 
-                    "fill_in_blank", 
-                    "matching", 
-                    "sequence_order"
-                  ]
-                },
-                options: { 
-                  type: "array", 
-                  items: { type: "string" },
-                  description: "Possible answers or choices (for applicable question types)"
-                },
-                correctAnswer: { 
-                  type: "string", 
-                  description: "The correct answer or key answer for the question"
-                },
-                explanation: { 
-                  type: "string", 
-                  description: "Optional explanation for the correct answer"
-                },
-                difficulty: { 
-                  type: "string", 
-                  enum: ["easy", "medium", "hard"],
-                  description: "Difficulty level of the question"
+                createItem: {
+                  type: "object",
+                  properties: {
+                    item: {
+                      type: "object",
+                      properties: {
+                        title: { type: "string" },
+                        questionItem: {
+                          type: "object",
+                          properties: {
+                            question: {
+                              type: "object",
+                              properties: {
+                                required: { type: "boolean" },
+                                grading: {
+                                  type: "object",
+                                  properties: {
+                                    pointValue: { type: "integer" },
+                                    correctAnswers: {
+                                      type: "object",
+                                      properties: {
+                                        answers: {
+                                          type: "array",
+                                          items: {
+                                            type: "object",
+                                            properties: {
+                                              value: { type: "string" }
+                                            },
+                                            required: ["value"]
+                                          }
+                                        }
+                                      },
+                                      required: ["answers"]
+                                    },
+                                    whenRight: {
+                                      type: "object",
+                                      properties: {
+                                        text: { type: "string" }
+                                      },
+                                      required: ["text"]
+                                    },
+                                    whenWrong: {
+                                      type: "object",
+                                      properties: {
+                                        text: { type: "string" }
+                                      },
+                                      required: ["text"]
+                                    }
+                                  },
+                                  required: ["pointValue", "correctAnswers", "whenRight", "whenWrong"]
+                                },
+                                choiceQuestion: {
+                                  type: "object",
+                                  properties: {
+                                    type: {
+                                      type: "string",
+                                      enum: ["RADIO", "CHECKBOX", "DROP_DOWN"]
+                                    },
+                                    options: {
+                                      type: "array",
+                                      items: {
+                                        type: "object",
+                                        properties: {
+                                          value: { type: "string" },
+                                          isOther: { type: "boolean" }
+                                        },
+                                        required: ["value", "isOther"]
+                                      }
+                                    },
+                                    shuffle: { type: "boolean" }
+                                  },
+                                  required: ["type", "options", "shuffle"]
+                                }
+                              },
+                              required: ["required", "grading", "choiceQuestion"]
+                            }
+                          },
+                          required: ["question"]
+                        }
+                      },
+                      required: ["title", "questionItem"]
+                    },
+                    location: {
+                      type: "object",
+                      properties: {
+                        index: { type: "integer" }
+                      },
+                      required: ["index"]
+                    }
+                  },
+                  required: ["item", "location"]
                 }
               },
-              required: ["title", "type", "correctAnswer"]
+              required: ["createItem"]
             }
           }
         },
-        required: ["questions"]
+        required: ["requests"]
       };
 
       // Prepare the model with the schema
@@ -78,7 +137,6 @@ class QuestionGenerator {
         - Multiple Choice
         - True/False
         - Short Answer
-        - Fill in the Blank
         - Matching
         - Sequence Order
       * Ensure questions are:
@@ -92,17 +150,19 @@ class QuestionGenerator {
       Additional Context:
       Topic: ${prompt}
       Description: ${description}
+      Number of Questions: ${numberOfQuestions}
 
       Return ONLY the valid JSON object with the questions array.
       `;
 
-      // Generate content
-      const result = await model.generateContent(combinedPrompt);
-
       try {
+        // Generate content
+        const result = await model.generateContent(combinedPrompt);
         // Parse the result
         const parsedResult = JSON.parse(result.response.text());
-        return parsedResult.questions;
+
+        console.log("Generated Questions:", parsedResult);
+        return parsedResult;
       } catch (jsonError) {
         console.error("JSON Parsing Error:", jsonError);
         console.error("Raw Response Text:", result.response.text());
