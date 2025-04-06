@@ -1,58 +1,135 @@
-// Grade Assignment
 const axios = require('axios');
-const gradeAssignment = require('../utils/assignment/gradeAssignment');
 const fetchSubmission = require('../utils/assignment/fetchSubmission');
+
 const gradeAssignmentController = async (req, res) => {
-    console.log("Grade funtion");
+    console.log("📥 Grade function triggered");
     try {
         const { access_token } = req.user.google;
-        // const { courseId, itemId, assignmentId, submissionId, marks, studentId } = req.body;
-        const { courseId, assignmentId, submissionId, grade } = req.body;
+        const { courseId, assignmentId } = req.body;
 
         if (!courseId || !assignmentId) {
             return res.status(400).json({ error: "Missing required parameters" });
         }
 
-        // Step 1 : Fetch all the submission for the assignment
-        const courseWork = await fetchSubmission(req.user.google, { course_id: courseId, course_work_id: assignmentId });
-        console.log("courseWork", courseWork?.data);
+        // Step 1: Fetch all the submissions
+        const courseWork = await fetchSubmission(req.user.google, {
+            course_id: courseId,
+            course_work_id: assignmentId,
+        });
 
-        const submissions = courseWork?.data?.studentSubmissions.forEach(assignment => {
+        const cleanSubmissions = courseWork?.data.studentSubmissions.map((submission) => ({
+            courseId: submission.courseId,
+            courseWorkId: submission.courseWorkId,
+            id: submission.id,
+            userId: submission.userId,
+            creationTime: submission.creationTime,
+            updateTime: submission.updateTime,
+            state: submission.state,
+            alternateLink: submission.alternateLink,
+            courseWorkType: submission.courseWorkType,
+            assignmentSubmission: submission.assignmentSubmission || {},
+            associatedWithDeveloper: submission.associatedWithDeveloper || true,
+            submissionHistory: submission.submissionHistory || [],
+        }));
 
-            
-            return {
+        // Intermediate Step
+        const courseWorkResponse = await axios.get(`https://classroom.googleapis.com/v1/courses/${courseId}/courseWork/${assignmentId}`, {
+            headers: {
+                Authorization: `Bearer ${access_token}`,
+            },
+        });
+        // console.log("Courses Response", courseWorkResponse.data);
 
+        const requestBody = { courseWork: cleanSubmissions, assignmentInfo: courseWorkResponse.data };
+
+        console.log("Request Body", requestBody);
+
+        // Step 2: Send to Flask API for grading
+        const gradeAssignment = await axios.post(
+            `http://157.245.107.120:5001/process_assignments`,
+            requestBody,
+            {
+                headers: {
+                    Authorization: `Bearer ${access_token}`,
+                    'Content-Type': 'application/json',
+                },
             }
-        });;
+        );
 
-        // Step 2 : Send Assignment for grading
+        const gradingResults = gradeAssignment.data.grading_results;
 
+        // Step 3: Fetch all students to map userId -> name/email
+        const studentListResponse = await axios.get(
+            `https://classroom.googleapis.com/v1/courses/${courseId}/students`,
+            {
+                headers: {
+                    Authorization: `Bearer ${access_token}`,
+                },
+            }
+        );
 
+        const studentMap = {};
+        studentListResponse.data.students.forEach((student) => {
+            studentMap[student.userId] = {
+                name: student.profile.name.fullName,
+                email: student.profile.emailAddress,
+            };
+        });
 
+        const gradedStudents = [];
 
-        // Step3 : Grade The assignment
-        // const url = `https://classroom.googleapis.com/v1/courses/${courseId}/courseWork/${assignmentId}/studentSubmissions/${submissionId}`;
+        // Step 4: Grade each submission and collect result
+        for (const result of gradingResults) {
+            const {
+                feedback,
+                grade,
+                submission_id: submissionId,
+                user_id: studentId,
+            } = result;
 
-        // const studentSubmission = {
-        //     assignedGrade: grade,
-        //     // draftGrade: grade,
-        //     state: 'RETURNED',
-        // };
+            const patchUrl = `https://classroom.googleapis.com/v1/courses/${courseId}/courseWork/${assignmentId}/studentSubmissions/${submissionId}`;
 
-        // const response = await axios.patch(url, studentSubmission, {
-        //     headers: {
-        //         Authorization: `Bearer ${access_token}`,
-        //         'Content-Type': 'application/json',
-        //     },
-        //     params: {
-        //         updateMask: 'assignedGrade',
-        //     },
-        // });
+            const studentSubmission = {
+                assignedGrade: grade,
+                state: 'RETURNED',
+            };
 
-        // console.log("Courses Response", response.data);
-        res.status(200).json({ status: true });
+            try {
+                await axios.patch(patchUrl, studentSubmission, {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    params: {
+                        updateMask: 'assignedGrade',
+                    },
+                });
+
+                const student = studentMap[studentId] || { name: "Unknown", email: "Unknown" };
+
+                gradedStudents.push({
+                    name: student.name,
+                    email: student.email,
+                    userId: studentId,
+                    feedback,
+                    grade,
+                });
+
+                console.log(`✅ Graded: ${student.name} (${studentId}) → ${grade}`);
+            } catch (err) {
+                console.error(`❌ Failed to grade ${studentId}`, err.response?.data || err.message);
+            }
+        }
+
+        // Step 5: Return result
+        res.status(200).json({
+            status: true,
+            gradedStudents,
+        });
     } catch (error) {
-        console.error("Error fetching courses", error.response?.data || error.message);
+        console.error("❌ Error in gradeAssignmentController:", error.response?.data || error.message);
+        res.status(500).json({ error: "Failed to process grading" });
     }
-}
+};
+
 module.exports = { gradeAssignmentController };

@@ -38,30 +38,30 @@ const getAccessToken = async (req, res) => {
       }
     );
 
-    const { id, email, name, picture } = userInfoResponse.data;
+    const { id, email, name, picture, } = userInfoResponse.data;
+
+    console.log("User GOOGLE ID", id);
 
     let user = await User.findOne({ email: email });
 
     if (!user) {
       console.log("Creating new user");
       user = new User({
-        google: tokenResponse.data,
+        google: {...tokenResponse.data, id},
         email,
         name,
         picture,
       });
-    } else {
-      user.google = tokenResponse.data;
+
+    }
+    else {
+      user.google = {...tokenResponse.data, id};
     }
     const newUser = await user.save();
 
     const jwtToken = jwt.sign({ id: newUser._id }, JWT_SECRET);
-    const redirectUrl = `${
-      process.env.FRONTEND_URL
-    }/auth?token=${jwtToken}&user=${JSON.stringify(newUser)}`;
-    console.log("Redirect URL", redirectUrl);
-    // Redirect to frontend with JWT token
-    return res.redirect(redirectUrl);
+
+    return res.json({ message: "Login successful", token: jwtToken });
   } catch (error) {
     console.error(
       "Error in Google authentication",
@@ -88,6 +88,8 @@ const refreshAccessToken = async (refreshToken) => {
 
     console.log("Token Response", tokenResponse.data);
     const { access_token, expires_in } = tokenResponse.data;
+
+    
 
     return { access_token, expires_in };
   } catch (error) {

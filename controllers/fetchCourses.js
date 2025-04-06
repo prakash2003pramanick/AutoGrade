@@ -12,9 +12,11 @@ const fetchCourses = async (req, res) => {
                 Authorization: `Bearer ${access_token}`,
             },
         });
-        console.log("Courses Response", coursesResponse.data);
+        // console.log("Courses Response", coursesResponse.data);
         const courses = coursesResponse.data.courses;
-        res.status(200).json({ courses });
+        const ownedCourses = courses.filter(course => course.ownerId === req.user.google.id);
+
+        res.status(200).json({ courses : ownedCourses });
 
     } catch (error) {
         console.error("Error fetching courses", error.response?.data || error.message);
