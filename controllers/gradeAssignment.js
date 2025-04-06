@@ -46,7 +46,7 @@ const gradeAssignmentController = async (req, res) => {
 
         // Step 2: Send to Flask API for grading
         const gradeAssignment = await axios.post(
-            `http://157.245.107.120:5001/process_assignments`,
+            `http://157.245.107.120:5002/process_assignments`,
             requestBody,
             {
                 headers: {

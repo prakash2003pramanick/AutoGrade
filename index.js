@@ -6,7 +6,7 @@ const formRoutes = require('./routes/form')
 const cors = require('cors');
 const { createAssignments } = require('./controllers/createAssignment');
 
-const { getAccessToken } = require('./controllers/auth/google/getAccessToken');
+const { getAccessToken, refreshAccessToken } = require('./controllers/auth/google/getAccessToken');
 const verifyToken = require('./Middleware/verifyToken');
 const { fetchCourses } = require('./controllers/fetchCourses');
 const { fetchCourseWork } = require('./controllers/fetchCourseWork');
@@ -14,6 +14,7 @@ const gradeAssignment = require('./utils/assignment/gradeAssignment');
 const { gradeAssignmentController } = require('./controllers/gradeAssignment');
 const { imageUpload, fileUpload } = require('./Middleware/upload');
 const { fetchSubmissionsController } = require('./controllers/fetchSubmissionsController');
+const { refreshToken } = require('firebase-admin/app');
 require('dotenv').config();
 
 const app = express();
@@ -421,6 +422,38 @@ app.get('/api/courses/fetchCourseWork/:courseId', verifyToken, fetchCourseWork)
 app.get('/api/courses/fetchSubmissions/:course_id/:coruse_work_id', verifyToken, fetchSubmissionsController);
 
 app.post('/api/assignment/gradeAssignment', verifyToken, gradeAssignmentController);
+
+app.post('/api/auth/login', async (req, res) => {
+  const User = require('./models/user');
+  const jwt = require('jsonwebtoken');
+
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
+  else if (!email != "prakashpramanickjsr1717@gmail.com" && password != "1234") {
+    return res.status(400).json({ error: 'Invalid credentials' });
+  }
+
+  let user = await User.findOne({ email: email });
+
+  // refresh token
+  const refreshedToken = await refreshAccessToken(user.google.refresh_token);
+
+  user.google.access_token = refreshedToken.access_token;
+  user.markModified('google.access_token');
+  const newUser = await user.save();
+  const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+  const redirectUrl = process.env.FRONTEND_URL;
+
+  const userString = encodeURIComponent(JSON.stringify(newUser));
+  // Build URL with token and serialized user object
+  const finalRedirectUrl = `${redirectUrl}?token=${jwtToken}&user=${userString}`;
+
+  // Redirect to frontend with query params
+  return res.redirect(finalRedirectUrl);
+});
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

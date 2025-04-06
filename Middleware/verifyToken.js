@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const { refreshAccessToken } = require("../controllers/auth/google/getAccessToken");
 
 const verifyToken = async (req, res, next) => {
   try {
@@ -16,13 +17,23 @@ const verifyToken = async (req, res, next) => {
 
     const verifiedUser = await User.findById(decoded?.id).select("-password");
 
-    console.log("verified user", verifiedUser)
+    const refreshToken = await refreshAccessToken(
+      verifiedUser.google.refresh_token
+    );
 
-    if (!verifiedUser) {
+    let newUser;
+
+    if (refreshToken) {
+      verifiedUser.google.access_token = refreshToken.access_token;
+      verifiedUser.markModified('google.access_token');
+      newUser = await verifiedUser.save();
+
+    }
+    if (!newUser) {
       return res.status(401).json({ error: "Unauthorized: User not found" });
     }
 
-    req.user = verifiedUser;
+    req.user = newUser;
     next();
   } catch (error) {
     console.error("Authentication Error:", error);
