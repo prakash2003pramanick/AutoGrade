@@ -66,6 +66,9 @@ const getAccessToken = async (req, res) => {
     // Build URL with token and serialized user object
     const finalRedirectUrl = `${redirectUrl}?token=${jwtToken}&user=${userString}`;
 
+
+    console.log("Final Redirect URL", finalRedirectUrl);
+
     // Redirect to frontend with query params
     return res.redirect(finalRedirectUrl);
   } catch (error) {
