@@ -45,8 +45,10 @@ const gradeAssignmentController = async (req, res) => {
         console.log("Request Body", requestBody);
 
         // Step 2: Send to Flask API for grading
+        const DEV_FLASK_URL = `http://localhost:5002/process_assignments`
+        const PROD_FLASK_URL = `http://157.245.107.120:5002/process_assignments`
         const gradeAssignment = await axios.post(
-            `http://157.245.107.120:5002/process_assignments`,
+            DEV_FLASK_URL,
             requestBody,
             {
                 headers: {
